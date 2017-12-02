@@ -1,4 +1,3 @@
-/*eslint-disable */
 const nock = require('nock');
 const chai = require('chai');
 const sinon = require('sinon');
@@ -10,12 +9,13 @@ chai.use(sinonChai);
 const convertBTC = require('../src/ConvertBTC');
 
 describe('ConvertBTC', () => {
+
   let consoleStub;
 
   const responseMock = {
     "success": true,
-    "price": 10943.91,
-    "time": "2017-12-02 01:00:31"
+    "time": "2017-07-02 18:51:29",
+    "price": 2490.78
   };
 
   beforeEach(() => {
@@ -26,32 +26,58 @@ describe('ConvertBTC', () => {
     console.log.restore();
   });
 
-  it('should use currency USD and 1 as default amount', (done) => {
-    //https://apiv2.bitcoinaverage.com/convert/global?from=BTC&to=USD&amount=1
+  it('should use currency USD and 1 as amount default', (done) => {
     nock('https://apiv2.bitcoinaverage.com')
-        .get('/convert/global')
-        .query({from: 'BTC', to: 'USD', amount: '1'})
-        .reply(200, responseMock);
+      .get('/convert/global')
+      .query({ from: 'BTC', to: 'USD', amount: 1 })
+      .reply(200, responseMock);
 
     convertBTC();
 
     setTimeout(() => {
-      expect(consoleStub).to.have.been.calledWith('1 BTC to USD = 10943.91');
+      expect(consoleStub).to.have.been.calledWith('1 BTC to USD = 2490.78');
       done();
     }, 300);
   });
 
   it('should use currency USD and 10 as amount', (done) => {
-    //https://apiv2.bitcoinaverage.com/convert/global?from=BTC&to=USD&amount=1
     nock('https://apiv2.bitcoinaverage.com')
-        .get('/convert/global')
-        .query({from: 'BTC', to: 'USD', amount: '10'})
-        .reply(200, responseMock);
+      .get('/convert/global')
+      .query({ from: 'BTC', to: 'USD', amount: 10 })
+      .reply(200, responseMock);
 
     convertBTC('USD', 10);
 
     setTimeout(() => {
-      expect(consoleStub).to.have.been.calledWith('10 BTC to USD = 10943.91');
+      expect(consoleStub).to.have.been.calledWith('10 BTC to USD = 2490.78');
+      done();
+    }, 300);
+  });
+
+  it('should use currency BRL and 1 as amount default', (done) => {
+    nock('https://apiv2.bitcoinaverage.com')
+      .get('/convert/global')
+      .query({ from: 'BTC', to: 'BRL', amount: 1 })
+      .reply(200, responseMock);
+
+    convertBTC('BRL');
+
+    setTimeout(() => {
+      expect(consoleStub).to.have.been.calledWith('1 BTC to BRL = 2490.78');
+      done();
+    }, 300);
+  });
+
+  it('should message user when api reply with error', (done) => {
+    nock('https://apiv2.bitcoinaverage.com')
+      .get('/convert/global')
+      .query({ from: 'BTC', to: 'BRL', amount: 1 })
+      .replyWithError('Error');
+
+    convertBTC('BRL');
+
+    setTimeout(() => {
+      expect(consoleStub).to.have.been.calledWith('Something went wrong in the API. Try in a few minutes.');
       done();
     }, 300);
   });

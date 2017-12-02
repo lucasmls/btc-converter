@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/*eslint-disable */
 
 const program = require('commander');
 const pkg = require('../package.json');
