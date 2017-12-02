@@ -54,5 +54,7 @@
     "nyc": "^11.3.0",
     "rimraf": "^2.6.2"
   },
-  "dependencies": {}
+  "dependencies": {
+    "commander": "^2.12.2"
+  }
 }
